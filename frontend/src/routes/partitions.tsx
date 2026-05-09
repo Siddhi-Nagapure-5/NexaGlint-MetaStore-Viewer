@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { tables } from "@/lib/mock-data";
+import { tablesApi } from "@/lib/api";
 import { FormatBadge } from "@/components/metastore/FormatBadge";
 import { Network, Database, Hash, ArchiveX, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export const Route = createFileRoute("/partitions")({
   head: () => ({ meta: [{ title: "Partitions · Lakehouse Metastore" }] }),
@@ -12,6 +12,15 @@ export const Route = createFileRoute("/partitions")({
 function PartitionsPage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(4);
+  const [tables, setTables] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    tablesApi.list().then(res => {
+      setTables(res);
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  }, []);
 
   const totalItems = tables.length;
   const totalPages = Math.ceil(totalItems / pageSize);
@@ -102,7 +111,7 @@ function PartitionsPage() {
                   <div className="text-xs text-gray-500 mt-1">Queries may result in full table scans.</div>
                 </div>
               ) : (
-                t.partitions.map((p, idx) => (
+                t.partitions.map((p: string, idx: number) => (
                   <div 
                     key={p} 
                     className="flex items-center justify-between bg-black/30 border border-white/5 rounded-xl p-4 hover:border-white/10 transition-colors"

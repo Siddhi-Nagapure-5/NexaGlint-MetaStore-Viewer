@@ -12,9 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TablesRouteImport } from './routes/tables'
 import { Route as SnapshotsRouteImport } from './routes/snapshots'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as QueryRouteImport } from './routes/query'
 import { Route as PartitionsRouteImport } from './routes/partitions'
 import { Route as MetricsRouteImport } from './routes/metrics'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as ConnectionsRouteImport } from './routes/connections'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TablesTableIdRouteImport } from './routes/tables.$tableId'
@@ -34,6 +36,11 @@ const SettingsRoute = SettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const QueryRoute = QueryRouteImport.update({
+  id: '/query',
+  path: '/query',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PartitionsRoute = PartitionsRouteImport.update({
   id: '/partitions',
   path: '/partitions',
@@ -47,6 +54,11 @@ const MetricsRoute = MetricsRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConnectionsRoute = ConnectionsRouteImport.update({
+  id: '/connections',
+  path: '/connections',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -68,9 +80,11 @@ const TablesTableIdRoute = TablesTableIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/connections': typeof ConnectionsRoute
   '/dashboard': typeof DashboardRoute
   '/metrics': typeof MetricsRoute
   '/partitions': typeof PartitionsRoute
+  '/query': typeof QueryRoute
   '/settings': typeof SettingsRoute
   '/snapshots': typeof SnapshotsRoute
   '/tables': typeof TablesRouteWithChildren
@@ -79,9 +93,11 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/connections': typeof ConnectionsRoute
   '/dashboard': typeof DashboardRoute
   '/metrics': typeof MetricsRoute
   '/partitions': typeof PartitionsRoute
+  '/query': typeof QueryRoute
   '/settings': typeof SettingsRoute
   '/snapshots': typeof SnapshotsRoute
   '/tables': typeof TablesRouteWithChildren
@@ -91,9 +107,11 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/connections': typeof ConnectionsRoute
   '/dashboard': typeof DashboardRoute
   '/metrics': typeof MetricsRoute
   '/partitions': typeof PartitionsRoute
+  '/query': typeof QueryRoute
   '/settings': typeof SettingsRoute
   '/snapshots': typeof SnapshotsRoute
   '/tables': typeof TablesRouteWithChildren
@@ -104,9 +122,11 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/connections'
     | '/dashboard'
     | '/metrics'
     | '/partitions'
+    | '/query'
     | '/settings'
     | '/snapshots'
     | '/tables'
@@ -115,9 +135,11 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/connections'
     | '/dashboard'
     | '/metrics'
     | '/partitions'
+    | '/query'
     | '/settings'
     | '/snapshots'
     | '/tables'
@@ -126,9 +148,11 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/auth'
+    | '/connections'
     | '/dashboard'
     | '/metrics'
     | '/partitions'
+    | '/query'
     | '/settings'
     | '/snapshots'
     | '/tables'
@@ -138,9 +162,11 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  ConnectionsRoute: typeof ConnectionsRoute
   DashboardRoute: typeof DashboardRoute
   MetricsRoute: typeof MetricsRoute
   PartitionsRoute: typeof PartitionsRoute
+  QueryRoute: typeof QueryRoute
   SettingsRoute: typeof SettingsRoute
   SnapshotsRoute: typeof SnapshotsRoute
   TablesRoute: typeof TablesRouteWithChildren
@@ -169,6 +195,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/query': {
+      id: '/query'
+      path: '/query'
+      fullPath: '/query'
+      preLoaderRoute: typeof QueryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/partitions': {
       id: '/partitions'
       path: '/partitions'
@@ -188,6 +221,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/connections': {
+      id: '/connections'
+      path: '/connections'
+      fullPath: '/connections'
+      preLoaderRoute: typeof ConnectionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -228,9 +268,11 @@ const TablesRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  ConnectionsRoute: ConnectionsRoute,
   DashboardRoute: DashboardRoute,
   MetricsRoute: MetricsRoute,
   PartitionsRoute: PartitionsRoute,
+  QueryRoute: QueryRoute,
   SettingsRoute: SettingsRoute,
   SnapshotsRoute: SnapshotsRoute,
   TablesRoute: TablesRouteWithChildren,

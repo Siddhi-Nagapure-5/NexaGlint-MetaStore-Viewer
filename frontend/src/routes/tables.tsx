@@ -1,16 +1,29 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { Search } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { FormatBadge } from "@/components/metastore/FormatBadge";
-import { formatBytes, formatNumber, tables, type TableFormat } from "@/lib/mock-data";
+import { CloudBadge } from "@/components/metastore/CloudBadge";
+import { formatBytes, formatNumber, type TableFormat } from "@/lib/mock-data";
+import { tablesApi } from "@/lib/api";
+import { getConnections } from "@/lib/connections-store";
 
 export const Route = createFileRoute("/tables")({
   head: () => ({ meta: [{ title: "Tables · Lakehouse Metastore" }] }),
   component: TablesLayout,
 });
 
-const FILTERS: ("All" | TableFormat)[] = ["All", "Iceberg", "Delta", "Hudi", "Parquet"];
+const FILTERS: ("All" | TableFormat)[] = ["All", "Iceberg", "Delta", "Hudi", "Parquet", "CSV"];
+
+// Map each table to a cloud connection (simulates multi-cloud discovery)
+const FORMAT_TO_CONNECTION: Record<TableFormat, string> = {
+  Iceberg:  "conn_aws_prod",
+  Delta:    "conn_aws_prod",
+  Hudi:     "conn_azure_staging",
+  Parquet:  "conn_azure_staging",
+  CSV:      "conn_azure_staging",
+};
+
 
 function TablesLayout() {
   const path = useRouterState({ select: (s) => s.location.pathname });
@@ -21,6 +34,16 @@ function TablesLayout() {
 function TablesList() {
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>("All");
+  const [tables, setTables] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const connections = useMemo(() => getConnections(), []);
+
+  useEffect(() => {
+    tablesApi.list().then(res => {
+      setTables(res);
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  }, []);
 
   const list = useMemo(
     () => tables.filter(
@@ -28,8 +51,11 @@ function TablesList() {
         (filter === "All" || t.format === filter) &&
         (q === "" || t.name.toLowerCase().includes(q.toLowerCase()))
     ),
-    [q, filter]
+    [q, filter, tables]
   );
+
+  const getConnection = (format: TableFormat) =>
+    connections.find((c) => c.id === FORMAT_TO_CONNECTION[format]);
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto w-full relative animate-in fade-in duration-1000">
@@ -63,12 +89,22 @@ function TablesList() {
           <Link key={t.id} to="/tables/$tableId" params={{ tableId: t.id }}
             className="glass-strong rounded-2xl p-6 border border-white/10 bg-white/5 backdrop-blur-xl hover:bg-white/10 hover:border-cyan-500/30 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(34,211,238,0.1)] block group animate-in slide-in-from-bottom-8 fill-mode-both"
             style={{ animationDelay: `${200 + index * 50}ms` }}>
-            <div className="flex items-start justify-between mb-4">
+            <div className="flex items-start justify-between mb-3">
               <div className="font-semibold text-lg text-white group-hover:text-cyan-300 transition-colors truncate pr-2">{t.name}</div>
               <FormatBadge format={t.format} />
             </div>
+            {/* Cloud source badge */}
+            {(() => {
+              const conn = getConnection(t.format);
+              return conn ? (
+                <div className="mb-3">
+                  <CloudBadge provider={conn.provider} size="sm" />
+                  <span className="ml-2 text-[10px] text-gray-600 font-medium">{conn.name}</span>
+                </div>
+              ) : null;
+            })()}
             <div className="text-xs text-gray-500 font-mono truncate bg-black/20 px-2 py-1 rounded-md inline-block max-w-full">{t.location}</div>
-            <div className="mt-6 grid grid-cols-3 gap-3 text-xs">
+            <div className="mt-5 grid grid-cols-3 gap-3 text-xs">
               <div className="bg-black/30 border border-white/5 rounded-xl p-3 transition-colors group-hover:bg-black/40"><div className="text-gray-500 font-medium mb-1">Rows</div><div className="font-semibold text-white">{formatNumber(t.rows)}</div></div>
               <div className="bg-black/30 border border-white/5 rounded-xl p-3 transition-colors group-hover:bg-black/40"><div className="text-gray-500 font-medium mb-1">Size</div><div className="font-semibold text-white">{formatBytes(t.sizeBytes)}</div></div>
               <div className="bg-black/30 border border-white/5 rounded-xl p-3 transition-colors group-hover:bg-black/40"><div className="text-gray-500 font-medium mb-1">Updated</div><div className="font-semibold text-white">{new Date(t.updatedAt).toLocaleDateString()}</div></div>
