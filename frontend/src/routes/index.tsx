@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { ArrowRight, Database, Layers, GitBranch, BarChart3, Sparkles, Boxes, Play, Cloud, ShieldCheck, Search, Rows3, HardDrive } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getToken } from "@/lib/api";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -38,7 +39,7 @@ function Landing() {
         </p>
 
         <div className="flex items-center justify-center gap-4">
-          <Link to="/auth">
+          <Link to={getToken() ? "/dashboard" : "/auth"}>
             <Button size="lg" className="rounded-xl border-0 h-12 px-8 font-semibold text-base transition-transform hover:scale-105 bg-gradient-to-r from-cyan-400 to-purple-500 text-black shadow-[0_0_20px_rgba(34,211,238,0.3)]">
               Launch Explorer
             </Button>
@@ -51,8 +52,26 @@ function Landing() {
         </div>
       </section>
 
+
+
+
+
+      {/* HERO APP PREVIEW */}
+      <section className="relative z-10 mt-16 px-4 max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-1000">
+        <div className="rounded-[2rem] p-2 bg-white/5 border border-white/10 backdrop-blur-md shadow-2xl overflow-hidden relative">
+          <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/10 via-transparent to-purple-500/10 opacity-50 pointer-events-none" />
+          <div className="rounded-[1.5rem] overflow-hidden relative bg-[#05050a] border border-white/5 shadow-inner">
+            <img 
+              src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop" 
+              alt="NexaGlint Dashboard Preview" 
+              className="w-full h-auto object-cover opacity-90"
+            />
+          </div>
+        </div>
+      </section>
+
       {/* TERMINAL SECTION */}
-      <section className="relative z-10 mt-20 px-4 max-w-4xl mx-auto">
+      <section className="relative z-10 mt-32 px-4 max-w-4xl mx-auto">
         <div className="rounded-2xl border border-white/10 bg-[#111520]/80 backdrop-blur-xl shadow-2xl overflow-hidden">
           <div className="flex items-center gap-2 px-4 py-3 border-b border-white/5 bg-white/5">
             <div className="size-3 rounded-full bg-rose-500"></div>
@@ -142,7 +161,7 @@ function Landing() {
         </div>
 
         <div className="mt-16 text-center">
-          <Link to="/auth">
+          <Link to={getToken() ? "/dashboard" : "/auth"}>
             <Button size="lg" className="rounded-xl border-0 h-12 px-8 font-semibold text-base transition-transform hover:scale-105 bg-gradient-to-r from-cyan-400 to-purple-500 text-black shadow-[0_0_20px_rgba(34,211,238,0.3)]">
               Try the Explorer <ArrowRight className="size-4 ml-2" />
             </Button>

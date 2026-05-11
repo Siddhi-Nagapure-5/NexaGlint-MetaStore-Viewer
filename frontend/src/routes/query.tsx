@@ -10,7 +10,7 @@ export const Route = createFileRoute("/query")({
 
 function QueryPage() {
   const [tables, setTables] = useState<TableSummary[]>([]);
-  const [sql, setSql] = useState("-- Select a table from the sidebar to generate a query\n-- Or manually query a bucket:\nSELECT * FROM read_csv_auto('s3://gauri-athena-query-output/**/*.csv') LIMIT 10;");
+  const [sql, setSql] = useState("-- Select a table from the sidebar to generate a query\n-- Or manually query a bucket:\nSELECT * FROM read_csv_auto('s3://your-bucket-name/**/*.csv') LIMIT 10;");
   const [results, setResults] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

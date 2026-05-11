@@ -16,7 +16,7 @@ from passlib.context import CryptContext
 import boto3
 import random
 from models.schemas import LoginRequest, RegisterRequest, AWSLoginRequest, TokenResponse, UserOut, SendOtpRequest
-from utils.mailer import send_email
+from utils.mailer import send_email, build_otp_email, build_welcome_email, build_login_alert_email
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -94,16 +94,13 @@ def send_otp(body: SendOtpRequest):
     otp_code = str(random.randint(100000, 999999))
     _otp_cache[body.email] = otp_code
     
-    subject = "Verify your NexaGlint Account"
-    message = (
-        f"Welcome to NexaGlint!\n\n"
-        f"Your 6-digit verification code is:\n\n"
-        f"{otp_code}\n\n"
-        f"Enter this code on the sign-up page to confirm your account.\n\n"
-        f"This code expires in 10 minutes. If you didn't request this, ignore this email."
-    )
-    preview_url = send_email(body.email, subject, message)
-    
+    # Derive a friendly name from the email prefix for the OTP email
+    name_hint = body.email.split("@")[0].replace(".", " ").replace("_", " ").title()
+
+    subject = "Your NexaGlint Verification Code"
+    html = build_otp_email(to_name=name_hint, otp_code=otp_code)
+    preview_url = send_email(body.email, subject, html)
+
     return {"status": "ok", "preview_url": preview_url}
 
 @router.post("/register", response_model=TokenResponse, status_code=201)
@@ -131,8 +128,12 @@ def register(body: RegisterRequest):
     # Remove OTP from cache
     _otp_cache.pop(body.email, None)
     
-    # Send Welcome Email
-    send_email(body.email, "Welcome to NexaGlint!", f"Hi {users[body.email]['name']},\n\nYour account has been successfully created. You can now analyze your Lakehouse tables in real-time.")
+    # Send rich Welcome Email
+    welcome_html = build_welcome_email(
+        to_name=users[body.email]["name"],
+        to_email=body.email,
+    )
+    send_email(body.email, "Welcome to NexaGlint — Your account is live! 🎉", welcome_html)
 
     user_out = UserOut(id=user_id, email=body.email, name=users[body.email]["name"], created_at=now)
     token = _create_token({"sub": body.email})
@@ -146,8 +147,13 @@ def login(body: LoginRequest):
     if not user or not pwd_ctx.verify(body.password, user["hashed_password"]):
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
-    # Send login alert
-    send_email(body.email, "New Login to NexaGlint", f"Hi {user['name']},\n\nWe detected a new login to your NexaGlint account at {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}.\n\nIf this wasn't you, please reset your password immediately.")
+    # Send rich login alert
+    login_time = datetime.now(timezone.utc).strftime("%d %b %Y, %I:%M %p UTC")
+    alert_html = build_login_alert_email(
+        to_name=user["name"],
+        login_time=login_time,
+    )
+    send_email(body.email, "Security Alert: New Sign-in to NexaGlint", alert_html)
 
     user_out = UserOut(
         id=user["id"],

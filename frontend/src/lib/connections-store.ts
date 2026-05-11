@@ -24,7 +24,14 @@ export type CloudConnection = {
   errorMessage?: string;
 };
 
-const STORAGE_KEY = "nexaglint_connections";
+export function getStorageKey(): string {
+  try {
+    const user = JSON.parse(localStorage.getItem("nexaglint_user") || "null");
+    return user?.id ? `nexaglint_connections_${user.id}` : "nexaglint_connections_guest";
+  } catch {
+    return "nexaglint_connections_guest";
+  }
+}
 
 // ─── Defaults (Empty for production) ──────────────────────────────────────────
 const DEFAULT_CONNECTIONS: CloudConnection[] = [];
@@ -32,10 +39,11 @@ const DEFAULT_CONNECTIONS: CloudConnection[] = [];
 // ─── CRUD ────────────────────────────────────────────────────────────────────
 export function getConnections(): CloudConnection[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const key = getStorageKey();
+    const raw = localStorage.getItem(key);
     if (!raw) {
       // seed with defaults on first load
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_CONNECTIONS));
+      localStorage.setItem(key, JSON.stringify(DEFAULT_CONNECTIONS));
       return DEFAULT_CONNECTIONS;
     }
     return JSON.parse(raw);
@@ -45,7 +53,7 @@ export function getConnections(): CloudConnection[] {
 }
 
 export function saveConnections(connections: CloudConnection[]): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(connections));
+  localStorage.setItem(getStorageKey(), JSON.stringify(connections));
 }
 
 export function addConnection(conn: Omit<CloudConnection, "id" | "status" | "tableCount">): CloudConnection {

@@ -1,5 +1,5 @@
 import { Link, Outlet, useRouter, useRouterState } from "@tanstack/react-router";
-import { Zap, Menu, LayoutDashboard, Search, Boxes, GitBranch, BarChart3, Settings, LogOut, Layers, Bell, Eye, X, AlertTriangle, GitCommit, TrendingDown, Globe, Terminal } from "lucide-react";
+import { Zap, Menu, LayoutDashboard, Search, Boxes, GitBranch, BarChart3, Settings, LogOut, Layers, Bell, Eye, X, AlertTriangle, GitCommit, TrendingDown, Globe, Terminal, BookOpen } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -11,7 +11,7 @@ import {
   simulatePolling,
   type WatchAlert,
 } from "@/lib/watch-store";
-import { clearToken, USER_KEY } from "@/lib/api";
+import { clearToken, USER_KEY, getToken } from "@/lib/api";
 
 const nav = [
   { to: "/dashboard",   label: "Dashboard",       Icon: LayoutDashboard },
@@ -24,6 +24,7 @@ const nav = [
 ] as const;
 
 const accountNav = [
+  { to: "/help", label: "Help Desk", Icon: BookOpen },
   { to: "/settings", label: "Settings", Icon: Settings },
   { to: "/", label: "Disconnect", Icon: LogOut },
 ];
@@ -146,12 +147,31 @@ export function AppShell() {
             <a href="#how-it-works" className="hover:text-white transition-colors">How it works</a>
           </div>
 
-          <div className="flex items-center">
-            <Link to="/auth">
-              <Button className="rounded-xl border-0 h-10 px-6 font-semibold bg-gradient-to-r from-cyan-400 to-purple-500 text-black shadow-[0_0_15px_rgba(34,211,238,0.2)] hover:scale-105 transition-transform">
-                Open Explorer
-              </Button>
+          <div className="flex items-center gap-3">
+            <Link to="/help" className="text-sm font-semibold text-cyan-400 hover:text-cyan-300 transition-colors mr-2">
+              Help Desk
             </Link>
+            {getToken() ? (
+              <>
+                <button
+                  onClick={() => { clearToken(); setUser(null); router.navigate({ to: "/auth" }); }}
+                  className="text-sm text-gray-400 hover:text-white transition-colors"
+                >
+                  Sign out
+                </button>
+                <Link to="/dashboard">
+                  <Button className="rounded-xl border-0 h-10 px-6 font-semibold bg-gradient-to-r from-cyan-400 to-purple-500 text-black shadow-[0_0_15px_rgba(34,211,238,0.2)] hover:scale-105 transition-transform">
+                    Go to Dashboard
+                  </Button>
+                </Link>
+              </>
+            ) : (
+              <Link to="/auth">
+                <Button className="rounded-xl border-0 h-10 px-6 font-semibold bg-gradient-to-r from-cyan-400 to-purple-500 text-black shadow-[0_0_15px_rgba(34,211,238,0.2)] hover:scale-105 transition-transform">
+                  Open Explorer
+                </Button>
+              </Link>
+            )}
           </div>
         </header>
         <main className="flex-1 w-full relative z-10">

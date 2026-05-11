@@ -15,14 +15,6 @@ export const Route = createFileRoute("/tables")({
 
 const FILTERS: ("All" | TableFormat)[] = ["All", "Iceberg", "Delta", "Hudi", "Parquet", "CSV"];
 
-// Map each table to a cloud connection (simulates multi-cloud discovery)
-const FORMAT_TO_CONNECTION: Record<TableFormat, string> = {
-  Iceberg:  "conn_aws_prod",
-  Delta:    "conn_aws_prod",
-  Hudi:     "conn_azure_staging",
-  Parquet:  "conn_azure_staging",
-  CSV:      "conn_azure_staging",
-};
 
 
 function TablesLayout() {
@@ -54,8 +46,6 @@ function TablesList() {
     [q, filter, tables]
   );
 
-  const getConnection = (format: TableFormat) =>
-    connections.find((c) => c.id === FORMAT_TO_CONNECTION[format]);
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto w-full relative animate-in fade-in duration-1000">
@@ -95,13 +85,15 @@ function TablesList() {
             </div>
             {/* Cloud source badge */}
             {(() => {
-              const conn = getConnection(t.format);
-              return conn ? (
+              const provider = t.location?.startsWith("s3://") ? "AWS S3" :
+                               t.location?.startsWith("gs://") ? "GCS" :
+                               t.location?.startsWith("abfs") ? "Azure Blob" : "MinIO";
+              return (
                 <div className="mb-3">
-                  <CloudBadge provider={conn.provider} size="sm" />
-                  <span className="ml-2 text-[10px] text-gray-600 font-medium">{conn.name}</span>
+                  <CloudBadge provider={provider as any} size="sm" />
+                  <span className="ml-2 text-[10px] text-gray-600 font-medium">{provider} Storage</span>
                 </div>
-              ) : null;
+              );
             })()}
             <div className="text-xs text-gray-500 font-mono truncate bg-black/20 px-2 py-1 rounded-md inline-block max-w-full">{t.location}</div>
             <div className="mt-5 grid grid-cols-3 gap-3 text-xs">

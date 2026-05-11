@@ -4,6 +4,7 @@ All endpoints require JWT auth.
 """
 import time
 import logging
+from datetime import datetime, timezone
 from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Depends, Query
 
@@ -21,9 +22,18 @@ from storage.s3_client import get_filesystem, list_s3_buckets, check_iam_health
 router = APIRouter(prefix="/api", tags=["tables"])
 logger = logging.getLogger(__name__)
 
-# ─── In-memory table cache (per session) ─────────────────────────────────────
+# ─── In-memory caches (per user session) ─────────────────────────────────────
 # In production: use Redis or a proper cache
-_table_cache: dict[str, dict] = {}
+_user_table_cache: dict[str, dict] = {}
+_user_watched_tables: dict[str, set] = {}
+_user_alerts: dict[str, list] = {}
+
+def get_user_cache(user_id: str):
+    if user_id not in _user_table_cache:
+        _user_table_cache[user_id] = {}
+        _user_watched_tables[user_id] = set()
+        _user_alerts[user_id] = []
+    return _user_table_cache[user_id], _user_watched_tables[user_id], _user_alerts[user_id]
 
 
 def _parse_table(path: str, fmt: str, fs) -> dict:
@@ -74,6 +84,7 @@ def scan_path(body: ScanRequest, current_user: UserOut = Depends(get_current_use
         logger.error(f"Discovery failed: {e}")
         found = []
 
+    cache, watched, alerts = get_user_cache(current_user.id)
     tables = []
     for entry in found:
         try:
@@ -81,30 +92,30 @@ def scan_path(body: ScanRequest, current_user: UserOut = Depends(get_current_use
             
             # Check for updates/alerts
             tid = parsed["id"]
-            if tid in _watched_tables and tid in _table_cache:
-                old_t = _table_cache[tid]
+            if tid in watched and tid in cache:
+                old_t = cache[tid]
                 if len(parsed.get("snapshots", [])) > len(old_t.get("snapshots", [])):
-                    _alerts.append({
+                    alerts.append({
                         "id": str(uuid.uuid4()),
                         "tableId": tid,
                         "tableName": parsed["name"],
                         "type": "new_snapshot",
                         "message": f"New snapshot detected for {parsed['name']}",
-                        "timestamp": datetime.utcnow().isoformat() + "Z",
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
                         "read": False
                     })
                 if parsed.get("schema") != old_t.get("schema"):
-                    _alerts.append({
+                    alerts.append({
                         "id": str(uuid.uuid4()),
                         "tableId": tid,
                         "tableName": parsed["name"],
                         "type": "schema_change",
                         "message": f"Schema changed for {parsed['name']}",
-                        "timestamp": datetime.utcnow().isoformat() + "Z",
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
                         "read": False
                     })
 
-            _table_cache[parsed["id"]] = parsed
+            cache[parsed["id"]] = parsed
             tables.append(parsed)
         except Exception as e:
             logger.error(f"Failed to parse {entry['path']}: {e}")
@@ -122,15 +133,17 @@ def scan_path(body: ScanRequest, current_user: UserOut = Depends(get_current_use
 @router.get("/tables", response_model=List[TableSummary])
 def list_tables(current_user: UserOut = Depends(get_current_user)):
     """Return all cached tables as summaries."""
-    return [_to_summary(t) for t in _table_cache.values()]
+    cache, _, _ = get_user_cache(current_user.id)
+    return [_to_summary(t) for t in cache.values()]
 
 
 @router.get("/tables/{table_id}", response_model=TableOut)
 def get_table(table_id: str, current_user: UserOut = Depends(get_current_user)):
     """Return full table detail including schema, snapshots, metrics, sample."""
-    if table_id not in _table_cache:
+    cache, _, _ = get_user_cache(current_user.id)
+    if table_id not in cache:
         raise HTTPException(status_code=404, detail=f"Table '{table_id}' not found")
-    return _table_cache[table_id]
+    return cache[table_id]
 
 
 @router.get("/stats", response_model=DashboardStats)
@@ -138,7 +151,8 @@ def get_dashboard_stats(current_user: UserOut = Depends(get_current_user)):
     """
     Get real statistics aggregated from all discovered tables.
     """
-    if not _table_cache:
+    cache, _, _ = get_user_cache(current_user.id)
+    if not cache:
         return DashboardStats(
             totalTables=0,
             totalRows=0,
@@ -147,14 +161,14 @@ def get_dashboard_stats(current_user: UserOut = Depends(get_current_user)):
             recentActivity=[]
         )
     
-    total_rows = sum(t.get("rows", 0) for t in _table_cache.values())
-    total_size = sum(t.get("sizeBytes", 0) for t in _table_cache.values())
+    total_rows = sum(t.get("rows", 0) for t in cache.values())
+    total_size = sum(t.get("sizeBytes", 0) for t in cache.values())
     
     # Calculate format distribution
-    format_list = sorted(list(set(t.get("format", "UNKNOWN") for t in _table_cache.values())))
+    format_list = sorted(list(set(t.get("format", "UNKNOWN") for t in cache.values())))
         
     # Get recent activity (last 5 updated tables)
-    recent = sorted(_table_cache.values(), key=lambda x: x.get("updatedAt", ""), reverse=True)[:5]
+    recent = sorted(cache.values(), key=lambda x: x.get("updatedAt", ""), reverse=True)[:5]
     activity = [
         {
             "id": t["id"],
@@ -166,7 +180,7 @@ def get_dashboard_stats(current_user: UserOut = Depends(get_current_user)):
     ]
 
     return DashboardStats(
-        totalTables=len(_table_cache),
+        totalTables=len(cache),
         totalRows=total_rows,
         totalSize=total_size,
         formats=format_list,
@@ -176,25 +190,25 @@ def get_dashboard_stats(current_user: UserOut = Depends(get_current_user)):
 
 @router.get("/tables/{table_id}/schema")
 def get_schema(table_id: str, current_user: UserOut = Depends(get_current_user)):
-    t = _get_or_404(table_id)
+    t = _get_or_404(table_id, current_user.id)
     return t["schema"]
 
 
 @router.get("/tables/{table_id}/snapshots")
 def get_snapshots(table_id: str, current_user: UserOut = Depends(get_current_user)):
-    t = _get_or_404(table_id)
+    t = _get_or_404(table_id, current_user.id)
     return t["snapshots"]
 
 
 @router.get("/tables/{table_id}/partitions")
 def get_partitions(table_id: str, current_user: UserOut = Depends(get_current_user)):
-    t = _get_or_404(table_id)
+    t = _get_or_404(table_id, current_user.id)
     return {"partitions": t["partitions"]}
 
 
 @router.get("/tables/{table_id}/metrics")
 def get_metrics(table_id: str, current_user: UserOut = Depends(get_current_user)):
-    t = _get_or_404(table_id)
+    t = _get_or_404(table_id, current_user.id)
     return t["metrics"]
 
 
@@ -204,7 +218,7 @@ def get_sample(
     rows: int = Query(10, ge=1, le=100),
     current_user: UserOut = Depends(get_current_user),
 ):
-    t = _get_or_404(table_id)
+    t = _get_or_404(table_id, current_user.id)
     return t["sample"][:rows]
 
 
@@ -214,7 +228,7 @@ def export_schema(
     format: str = Query("sql", pattern="^(sql|json|avro|dbt)$"),
     current_user: UserOut = Depends(get_current_user),
 ):
-    t = _get_or_404(table_id)
+    t = _get_or_404(table_id, current_user.id)
     return {"table_id": table_id, "format": format, "schema": t["schema"], "name": t["name"]}
 
 
@@ -276,24 +290,28 @@ def run_query(body: QueryRequest, current_user: UserOut = Depends(get_current_us
 
 @router.post("/tables/{table_id}/watch")
 def watch_table(table_id: str, current_user: UserOut = Depends(get_current_user)):
-    _watched_tables.add(table_id)
+    _, watched, _ = get_user_cache(current_user.id)
+    watched.add(table_id)
     return {"status": "watching"}
 
 
 @router.delete("/tables/{table_id}/watch")
 def unwatch_table(table_id: str, current_user: UserOut = Depends(get_current_user)):
-    _watched_tables.discard(table_id)
+    _, watched, _ = get_user_cache(current_user.id)
+    watched.discard(table_id)
     return {"status": "stopped"}
 
 
 @router.get("/alerts", response_model=List[AlertOut])
 def get_alerts_endpoint(current_user: UserOut = Depends(get_current_user)):
-    return _alerts
+    _, _, alerts = get_user_cache(current_user.id)
+    return alerts
 
 
 @router.post("/alerts/{alert_id}/read")
 def mark_alert_read(alert_id: str, current_user: UserOut = Depends(get_current_user)):
-    for a in _alerts:
+    _, _, alerts = get_user_cache(current_user.id)
+    for a in alerts:
         if a["id"] == alert_id:
             a["read"] = True
             break
@@ -301,8 +319,9 @@ def mark_alert_read(alert_id: str, current_user: UserOut = Depends(get_current_u
 
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
-def _get_or_404(table_id: str) -> dict:
-    t = _table_cache.get(table_id)
+def _get_or_404(table_id: str, user_id: str) -> dict:
+    cache, _, _ = get_user_cache(user_id)
+    t = cache.get(table_id)
     if not t:
         raise HTTPException(status_code=404, detail=f"Table '{table_id}' not found")
     return t

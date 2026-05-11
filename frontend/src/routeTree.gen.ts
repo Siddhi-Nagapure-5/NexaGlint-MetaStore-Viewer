@@ -15,6 +15,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as QueryRouteImport } from './routes/query'
 import { Route as PartitionsRouteImport } from './routes/partitions'
 import { Route as MetricsRouteImport } from './routes/metrics'
+import { Route as HelpRouteImport } from './routes/help'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ConnectionsRouteImport } from './routes/connections'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -51,6 +52,11 @@ const MetricsRoute = MetricsRouteImport.update({
   path: '/metrics',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -82,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/connections': typeof ConnectionsRoute
   '/dashboard': typeof DashboardRoute
+  '/help': typeof HelpRoute
   '/metrics': typeof MetricsRoute
   '/partitions': typeof PartitionsRoute
   '/query': typeof QueryRoute
@@ -95,6 +102,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/connections': typeof ConnectionsRoute
   '/dashboard': typeof DashboardRoute
+  '/help': typeof HelpRoute
   '/metrics': typeof MetricsRoute
   '/partitions': typeof PartitionsRoute
   '/query': typeof QueryRoute
@@ -109,6 +117,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/connections': typeof ConnectionsRoute
   '/dashboard': typeof DashboardRoute
+  '/help': typeof HelpRoute
   '/metrics': typeof MetricsRoute
   '/partitions': typeof PartitionsRoute
   '/query': typeof QueryRoute
@@ -124,6 +133,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/connections'
     | '/dashboard'
+    | '/help'
     | '/metrics'
     | '/partitions'
     | '/query'
@@ -137,6 +147,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/connections'
     | '/dashboard'
+    | '/help'
     | '/metrics'
     | '/partitions'
     | '/query'
@@ -150,6 +161,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/connections'
     | '/dashboard'
+    | '/help'
     | '/metrics'
     | '/partitions'
     | '/query'
@@ -164,6 +176,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ConnectionsRoute: typeof ConnectionsRoute
   DashboardRoute: typeof DashboardRoute
+  HelpRoute: typeof HelpRoute
   MetricsRoute: typeof MetricsRoute
   PartitionsRoute: typeof PartitionsRoute
   QueryRoute: typeof QueryRoute
@@ -214,6 +227,13 @@ declare module '@tanstack/react-router' {
       path: '/metrics'
       fullPath: '/metrics'
       preLoaderRoute: typeof MetricsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -270,6 +290,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ConnectionsRoute: ConnectionsRoute,
   DashboardRoute: DashboardRoute,
+  HelpRoute: HelpRoute,
   MetricsRoute: MetricsRoute,
   PartitionsRoute: PartitionsRoute,
   QueryRoute: QueryRoute,
