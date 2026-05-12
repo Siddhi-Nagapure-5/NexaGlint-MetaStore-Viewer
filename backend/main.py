@@ -29,14 +29,11 @@ app = FastAPI(
 
 
 # ─── CORS ─────────────────────────────────────────────────────────────────────
-# In production, set CORS_ORIGINS to your frontend URL
-raw_origins = os.getenv("CORS_ORIGINS", "*")
-origins = [o.strip() for o in raw_origins.split(",") if o.strip()]
-
+# Using a highly permissive CORS policy to ensure Vercel can connect to Render.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=False, # Set to False to allow wildcard (*) if needed, we use JWT in headers
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
