@@ -1,6 +1,11 @@
-"""
-NexaGlint Backend — FastAPI application entry point.
-"""
+import sys
+import os
+
+# Add the current directory to sys.path to ensure local modules are found
+current_dir = os.path.dirname(os.path.abspath(__file__))
+if current_dir not in sys.path:
+    sys.path.append(current_dir)
+
 import logging
 from dotenv import load_dotenv
 load_dotenv()  # Load .env before anything else
@@ -24,7 +29,6 @@ app = FastAPI(
     redoc_url="/api/redoc",
 )
 
-import os
 
 # ─── CORS ─────────────────────────────────────────────────────────────────────
 # In production, set CORS_ORIGINS to your frontend URL (e.g., https://nexaglint.vercel.app)
