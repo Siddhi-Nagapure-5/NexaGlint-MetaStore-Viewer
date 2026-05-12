@@ -1,8 +1,9 @@
 import os
 import sys
 import logging
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+import time
 
 # Ensure local imports work
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -14,6 +15,12 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="NexaGlint API")
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    logger.info(f"[DEBUG] Request: {request.method} {request.url.path}")
+    response = await call_next(request)
+    return response
 
 # ─── CORS ─────────────────────────────────────────────────────────────────────
 app.add_middleware(
