@@ -111,7 +111,9 @@ export function AppShell() {
       setUser(storedUser);
     }
 
-    if (!isHome && !isAuth && !storedUser) {
+    const isHelp = path.startsWith("/help");
+
+    if (!isHome && !isAuth && !isHelp && !storedUser) {
       router.navigate({ to: "/auth" });
     }
   }, [path, isHome, isAuth]);
@@ -126,7 +128,9 @@ export function AppShell() {
     return <Outlet />;
   }
 
-  if (isHome) {
+  const isPublicHelp = path.startsWith("/help") && !user;
+
+  if (isHome || isPublicHelp) {
     return (
       <div className="min-h-screen flex flex-col w-full text-white bg-[#090b14] selection:bg-cyan-500/30">
         <header className="px-6 py-5 flex items-center justify-between max-w-7xl mx-auto w-full relative z-20">
@@ -142,9 +146,9 @@ export function AppShell() {
           </Link>
 
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
-            <a href="#features" className="hover:text-white transition-colors">Features</a>
-            <a href="#formats" className="hover:text-white transition-colors">Formats</a>
-            <a href="#how-it-works" className="hover:text-white transition-colors">How it works</a>
+            <a href="/#features" className="hover:text-white transition-colors">Features</a>
+            <a href="/#formats" className="hover:text-white transition-colors">Formats</a>
+            <a href="/#how-it-works" className="hover:text-white transition-colors">How it works</a>
           </div>
 
           <div className="flex items-center gap-3">
@@ -281,6 +285,11 @@ export function AppShell() {
             <Menu className="size-5 text-gray-400 hover:text-white cursor-pointer transition-colors" onClick={() => setCollapsed(!collapsed)} />
           </div>
           <div className="flex items-center gap-3">
+            <Link to="/help" className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-xs font-medium text-gray-400 hover:text-white transition-all mr-1">
+              <BookOpen className="size-3.5 text-cyan-400" />
+              <span>Help Desk</span>
+            </Link>
+            
             <div className="rounded-full px-4 py-1.5 bg-cyan-500/10 border border-cyan-500/30 text-xs font-semibold text-cyan-300 flex items-center gap-2 shadow-[0_0_10px_rgba(34,211,238,0.1)] transition-colors hover:bg-cyan-500/20 cursor-pointer">
               <Zap className="size-3.5 text-cyan-400 animate-pulse" /> AWS Connected
             </div>

@@ -4,7 +4,9 @@
  * JWT token stored in localStorage.
  */
 
-const BASE = "/api";
+// In development, this uses the Vite proxy to localhost:8000
+// In production, set VITE_API_URL in your deployment platform (e.g., Vercel)
+const BASE = import.meta.env.VITE_API_URL || "/api";
 
 // ─── Token helpers ─────────────────────────────────────────────────────────
 export const TOKEN_KEY = "nexaglint_token";

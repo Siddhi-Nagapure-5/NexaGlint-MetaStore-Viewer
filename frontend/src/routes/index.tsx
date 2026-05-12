@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { ArrowRight, Database, Layers, GitBranch, BarChart3, Sparkles, Boxes, Play, Cloud, ShieldCheck, Search, Rows3, HardDrive } from "lucide-react";
+import { ArrowRight, Database, Layers, GitBranch, BarChart3, Sparkles, Boxes, Play, Cloud, ShieldCheck, Search, Rows3, HardDrive, Mail, BookOpen, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getToken } from "@/lib/api";
 
@@ -51,10 +51,6 @@ function Landing() {
           </a>
         </div>
       </section>
-
-
-
-
 
       {/* HERO APP PREVIEW */}
       <section className="relative z-10 mt-16 px-4 max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-1000">
@@ -134,6 +130,106 @@ function Landing() {
             <ArrowRight className="size-6 text-cyan-400 mb-4" />
             <h3 className="text-xl font-semibold mb-2">Compare across snapshots</h3>
             <p className="text-gray-400">Track schema evolution and storage growth over time. Spot drift before it breaks downstream.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* HELP DESK / ONBOARDING SECTION */}
+      <section className="relative z-10 mt-32 px-4 max-w-6xl mx-auto" id="help-desk">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[10px] font-bold uppercase tracking-widest mb-4">
+              <BookOpen className="size-3" /> Quick Start Guide
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">Onboarding & Usage</h2>
+          </div>
+          <p className="text-gray-400 max-w-md text-sm leading-relaxed">
+            New to NexaGlint? Here is how to get started with your lakehouse exploration.
+          </p>
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-8">
+          {/* Auth Flow */}
+          <div className="glass-strong rounded-[2rem] p-8 border border-white/10 bg-[#111520]/40 relative overflow-hidden group transition-all hover:bg-[#111520]/60">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-bl-full blur-2xl group-hover:bg-purple-500/10 transition-colors" />
+            
+            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
+              <div className="size-10 rounded-xl bg-purple-500/10 border border-purple-500/20 grid place-items-center text-purple-400">
+                <ShieldCheck className="size-5" />
+              </div>
+              Login & Signup Options
+            </h3>
+
+            <div className="space-y-6 relative z-10">
+              <div className="flex gap-4">
+                <div className="shrink-0 size-8 rounded-full bg-white/5 border border-white/10 grid place-items-center text-xs font-bold text-gray-500">1</div>
+                <div>
+                  <div className="text-sm font-semibold text-white mb-1">Passwordless Email Auth</div>
+                  <p className="text-xs text-gray-400 leading-relaxed">Simply enter your email. We support all professional email domains for instant workspace creation.</p>
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <div className="shrink-0 size-8 rounded-full bg-white/5 border border-white/10 grid place-items-center text-xs font-bold text-gray-500">2</div>
+                <div>
+                  <div className="text-sm font-semibold text-white mb-1">OTP Verification</div>
+                  <p className="text-xs text-gray-400 leading-relaxed">Check your inbox for a 6-digit code. This acts as your secure one-time key for a seamless signup.</p>
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <div className="shrink-0 size-8 rounded-full bg-white/5 border border-white/10 grid place-items-center text-xs font-bold text-gray-500">3</div>
+                <div>
+                  <div className="text-sm font-semibold text-white mb-1">Persistent Sessions</div>
+                  <p className="text-xs text-gray-400 leading-relaxed">Once verified, your session is securely stored. No need to re-authenticate every time you visit.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 p-4 rounded-xl bg-purple-500/5 border border-purple-500/10 flex items-center gap-3">
+              <Mail className="size-4 text-purple-400" />
+              <span className="text-[10px] text-purple-200/60 uppercase tracking-wider font-semibold">Passwordless & Secure</span>
+            </div>
+          </div>
+
+          {/* Usage Flow */}
+          <div className="glass-strong rounded-[2rem] p-8 border border-white/10 bg-[#111520]/40 relative overflow-hidden group transition-all hover:bg-[#111520]/60">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 rounded-bl-full blur-2xl group-hover:bg-cyan-500/10 transition-colors" />
+            
+            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
+              <div className="size-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 grid place-items-center text-cyan-400">
+                <Zap className="size-5" />
+              </div>
+              Platform Workflow
+            </h3>
+
+            <div className="grid grid-cols-2 gap-4 relative z-10">
+              <div className="p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-cyan-500/20 transition-all">
+                <Cloud className="size-4 text-cyan-400 mb-3" />
+                <div className="text-xs font-bold text-white mb-1">01. Identity</div>
+                <p className="text-[10px] text-gray-500 leading-tight">Add your AWS IAM keys in Settings to allow S3 access.</p>
+              </div>
+              <div className="p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-cyan-500/20 transition-all">
+                <Search className="size-4 text-cyan-400 mb-3" />
+                <div className="text-xs font-bold text-white mb-1">02. Discover</div>
+                <p className="text-[10px] text-gray-500 leading-tight">NexaGlint automatically scans for Iceberg and Delta tables.</p>
+              </div>
+              <div className="p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-cyan-500/20 transition-all">
+                <Database className="size-4 text-cyan-400 mb-3" />
+                <div className="text-xs font-bold text-white mb-1">03. Inspect</div>
+                <p className="text-[10px] text-gray-500 leading-tight">View schemas, snapshots, and raw metadata at a glance.</p>
+              </div>
+              <div className="p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-cyan-500/20 transition-all">
+                <BarChart3 className="size-4 text-cyan-400 mb-3" />
+                <div className="text-xs font-bold text-white mb-1">04. Query</div>
+                <p className="text-[10px] text-gray-500 leading-tight">Run SQL queries directly on your S3 objects via DuckDB.</p>
+              </div>
+            </div>
+
+            <div className="mt-6 flex items-center justify-between text-[10px]">
+              <span className="text-gray-500">Need more info?</span>
+              <Link to="/help" className="text-cyan-400 font-bold flex items-center gap-1 hover:gap-2 transition-all">
+                Full Help Desk <ArrowRight className="size-3" />
+              </Link>
+            </div>
           </div>
         </div>
       </section>

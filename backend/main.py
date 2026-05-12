@@ -24,15 +24,15 @@ app = FastAPI(
     redoc_url="/api/redoc",
 )
 
+import os
+
 # ─── CORS ─────────────────────────────────────────────────────────────────────
+# In production, set CORS_ORIGINS to your frontend URL (e.g., https://nexaglint.vercel.app)
+origins = os.getenv("CORS_ORIGINS", "*").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:8080",
-        "http://localhost:3000",
-        "http://localhost:5173",
-        "http://127.0.0.1:8080",
-    ],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

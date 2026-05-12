@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { BookOpen, Search, Shield, Zap, Database, Terminal, BarChart3, ChevronRight, CheckCircle2 } from "lucide-react";
+import { BookOpen, Search, Shield, Zap, Database, Terminal, BarChart3, ChevronRight, CheckCircle2, Mail, ShieldCheck, Key, Cloud } from "lucide-react";
 
 export const Route = createFileRoute("/help")({
   head: () => ({ meta: [{ title: "Help Desk · NexaGlint" }] }),
@@ -34,6 +34,107 @@ function HelpDeskPage() {
           <p>
             By directly scanning the raw storage files (like <span className="text-white font-semibold">Iceberg metadata.json</span>, <span className="text-white font-semibold">Delta _delta_log</span>, or raw Parquet footers) resting in your S3 buckets, NexaGlint can instantly map out your entire data estate without spinning up compute clusters.
           </p>
+        </div>
+      </section>
+
+      {/* Why NexaGlint? */}
+      <div className="grid md:grid-cols-3 gap-6">
+        <div className="p-8 rounded-3xl bg-[#111520]/40 border border-white/5 relative overflow-hidden group hover:bg-[#111520]/60 transition-colors">
+          <div className="absolute top-0 right-0 size-24 bg-cyan-500/5 rounded-bl-full blur-2xl" />
+          <div className="size-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 grid place-items-center text-cyan-400 mb-4">
+            <Zap className="size-5" />
+          </div>
+          <h3 className="text-lg font-bold text-white mb-2">Instant Insights</h3>
+          <p className="text-xs text-gray-400 leading-relaxed">No need to wait for a catalog to sync. Get the current state of your S3 data in seconds, exactly as it exists in storage.</p>
+        </div>
+        <div className="p-8 rounded-3xl bg-[#111520]/40 border border-white/5 relative overflow-hidden group hover:bg-[#111520]/60 transition-colors">
+          <div className="absolute top-0 right-0 size-24 bg-purple-500/5 rounded-bl-full blur-2xl" />
+          <div className="size-10 rounded-xl bg-purple-500/10 border border-purple-500/20 grid place-items-center text-purple-400 mb-4">
+            <ShieldCheck className="size-5" />
+          </div>
+          <h3 className="text-lg font-bold text-white mb-2">Zero Infra Cost</h3>
+          <p className="text-xs text-gray-400 leading-relaxed">Runs entirely in your browser and a lightweight backend. No expensive Glue or EMR clusters needed to see your schemas.</p>
+        </div>
+        <div className="p-8 rounded-3xl bg-[#111520]/40 border border-white/5 relative overflow-hidden group hover:bg-[#111520]/60 transition-colors">
+          <div className="absolute top-0 right-0 size-24 bg-emerald-500/5 rounded-bl-full blur-2xl" />
+          <div className="size-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 grid place-items-center text-emerald-400 mb-4">
+            <Search className="size-5" />
+          </div>
+          <h3 className="text-lg font-bold text-white mb-2">Truth at Source</h3>
+          <p className="text-xs text-gray-400 leading-relaxed">Avoid catalog drift. What you see in NexaGlint is exactly what is stored in your S3 bucket, verified via manifest files.</p>
+        </div>
+      </div>
+
+      {/* Signup Options */}
+      <section className="space-y-8">
+        <h2 className="text-3xl font-black tracking-tight text-white">Identity & Signup Options</h2>
+        <p className="text-gray-400 text-sm max-w-2xl">
+          NexaGlint offers two primary ways to access the platform. Choose the one that best fits your role and how you intend to use the tool.
+        </p>
+
+        <div className="grid md:grid-cols-2 gap-8">
+          {/* Option 1: Standard */}
+          <div className="glass-strong rounded-[2rem] p-8 border border-white/10 bg-[#111520]/40 relative overflow-hidden flex flex-col group hover:bg-[#111520]/60 transition-all">
+            <div className="absolute top-0 right-0 size-32 bg-cyan-500/5 rounded-bl-full blur-3xl group-hover:bg-cyan-500/10 transition-colors" />
+            <div className="size-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 grid place-items-center text-cyan-400 mb-6 shadow-[0_0_20px_rgba(34,211,238,0.1)]">
+              <Mail className="size-7" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">Standard Email (OTP)</h3>
+            <p className="text-xs font-bold text-cyan-400 uppercase tracking-wider mb-4 px-2 py-1 bg-cyan-500/5 border border-cyan-500/10 rounded-md inline-block w-fit">
+              Best for: Data Analysts & Engineers
+            </p>
+            <p className="text-sm text-gray-400 leading-relaxed mb-8 flex-1">
+              The recommended way for long-term use. By signing up with your email, NexaGlint creates a persistent profile for you. This allows you to <strong>watch tables</strong>, save your <strong>S3 connections</strong>, and keep a history of your <strong>SQL queries</strong>.
+            </p>
+            <div className="space-y-3 relative z-10">
+              <div className="flex items-center gap-2 text-xs text-gray-300">
+                <CheckCircle2 className="size-3 text-emerald-400" /> Passwordless OTP security
+              </div>
+              <div className="flex items-center gap-2 text-xs text-gray-300">
+                <CheckCircle2 className="size-3 text-emerald-400" /> Persistent workspace settings
+              </div>
+              <div className="flex items-center gap-2 text-xs text-gray-300">
+                <CheckCircle2 className="size-3 text-emerald-400" /> Multi-device synchronization
+              </div>
+            </div>
+          </div>
+
+          {/* Option 2: Cloud */}
+          <div className="glass-strong rounded-[2rem] p-8 border border-white/10 bg-[#111520]/40 relative overflow-hidden flex flex-col group hover:bg-[#111520]/60 transition-all">
+            <div className="absolute top-0 right-0 size-32 bg-purple-500/5 rounded-bl-full blur-3xl group-hover:bg-purple-500/10 transition-colors" />
+            <div className="size-14 rounded-2xl bg-purple-500/10 border border-purple-500/20 grid place-items-center text-purple-400 mb-6 shadow-[0_0_20px_rgba(168,85,247,0.1)]">
+              <Cloud className="size-7" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">IAM Cloud Login</h3>
+            <p className="text-xs font-bold text-purple-400 uppercase tracking-wider mb-4 px-2 py-1 bg-purple-500/5 border border-purple-500/10 rounded-md inline-block w-fit">
+              Best for: Cloud Admins & DevOps
+            </p>
+            <p className="text-sm text-gray-400 leading-relaxed mb-8 flex-1">
+              Perfect for quick, identity-first exploration. Use your existing <strong>AWS IAM credentials</strong> to jump straight into the dashboard. No email signup required—your cloud identity <i>is</i> your login.
+            </p>
+            <div className="space-y-3 relative z-10">
+              <div className="flex items-center gap-2 text-xs text-gray-300">
+                <CheckCircle2 className="size-3 text-emerald-400" /> No separate account needed
+              </div>
+              <div className="flex items-center gap-2 text-xs text-gray-300">
+                <CheckCircle2 className="size-3 text-emerald-400" /> Direct access to S3 resources
+              </div>
+              <div className="flex items-center gap-2 text-xs text-gray-300">
+                <CheckCircle2 className="size-3 text-emerald-400" /> Instant session creation
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Security Note */}
+        <div className="p-6 rounded-2xl bg-white/5 border border-white/10 flex items-start gap-4">
+          <ShieldCheck className="size-6 text-emerald-400 shrink-0" />
+          <div>
+            <h4 className="text-sm font-bold text-white mb-1">A Note on Security</h4>
+            <p className="text-xs text-gray-400 leading-relaxed">
+              Regardless of the method you choose, NexaGlint never stores your AWS Root keys. We use industry-standard encryption for all session tokens and recommend using limited-scope IAM keys (AmazonS3ReadOnlyAccess) for maximum safety.
+            </p>
+          </div>
         </div>
       </section>
 
