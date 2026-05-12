@@ -11,6 +11,13 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 export default defineConfig({
   // Force a standard static build for Vercel
   vite: {
+    build: {
+      rollupOptions: {
+        input: {
+          main: "index.html",
+        },
+      },
+    },
     server: {
       proxy: {
         // Proxy all /api/* calls to FastAPI backend running on port 8000
