@@ -43,6 +43,11 @@ app.include_router(auth_router)
 app.include_router(tables_router)
 
 
+@app.get("/")
+def root():
+    return {"status": "online", "message": "NexaGlint API is Live", "docs": "/api/docs"}
+
+
 @app.get("/api/health")
 def health():
     return {"status": "ok", "service": "NexaGlint API", "version": "1.0.0"}
