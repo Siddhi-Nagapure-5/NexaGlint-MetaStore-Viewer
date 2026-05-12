@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+**/__pycache__/
+backend/.venv/
+backend/venv/
+.env
+*.local
+
+# Production
+dist/
+dist-ssr/
+.output/
+.tanstack/
+
+# Storage (Don't push your local user database or storage files)
+backend/users.json
+backend/storage/
+
+# System
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
