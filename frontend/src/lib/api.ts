@@ -46,18 +46,32 @@ async function api<T>(
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${BASE}${path}`, { ...options, headers });
+  // Clean up the URL: remove trailing slash from BASE and leading slash from path
+  const cleanBase = BASE.endsWith('/') ? BASE.slice(0, -1) : BASE;
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  const fullUrl = `${cleanBase}${cleanPath}`;
 
-  if (!res.ok) {
-    let detail = `HTTP ${res.status}`;
-    try {
-      const err = await res.json();
-      detail = err.detail || JSON.stringify(err);
-    } catch {}
-    throw new ApiError(res.status, detail);
+  console.log(`[API Request] ${options.method || 'GET'} ${fullUrl}`);
+
+  try {
+    const res = await fetch(fullUrl, { ...options, headers });
+
+    if (!res.ok) {
+      console.error(`[API Error] ${res.status} ${fullUrl}`);
+      let detail = `HTTP ${res.status}`;
+      try {
+        const err = await res.json();
+        detail = err.detail || JSON.stringify(err);
+      } catch {}
+      throw new ApiError(res.status, detail);
+    }
+
+    return res.json() as Promise<T>;
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    console.error(`[Network Error] ${fullUrl}`, error);
+    throw new ApiError(500, "Network connection failed. Please check your VITE_API_URL setting.");
   }
-
-  return res.json() as Promise<T>;
 }
 
 export class ApiError extends Error {
