@@ -2,6 +2,10 @@
 
 NexaGlint is a high-performance, infrastructure-free metastore viewer designed for the modern data lakehouse. It allows data engineers and analysts to inspect **Iceberg**, **Delta Lake**, **Hudi**, and raw **Parquet** tables directly from S3-compatible storage without needing a running Hive Metastore or AWS Glue service.
 
+## 🚀 Live Demo
+- **Frontend (Vercel)**: [https://nexa-glint-meta-store-viewer-nfqu.vercel.app](https://nexa-glint-meta-store-viewer-nfqu.vercel.app)
+- **Backend API (Render)**: [https://nexaglint-api.onrender.com/api/docs](https://nexaglint-api.onrender.com/api/docs)
+
 ## ✨ Key Features
 
 - **Instant Table Discovery**: Automatically scan S3 buckets to find table roots across multiple formats.
