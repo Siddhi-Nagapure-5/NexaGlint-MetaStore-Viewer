@@ -29,13 +29,14 @@ app = FastAPI(
 
 
 # ─── CORS ─────────────────────────────────────────────────────────────────────
-# In production, set CORS_ORIGINS to your frontend URL (e.g., https://nexaglint.vercel.app)
-origins = os.getenv("CORS_ORIGINS", "*").split(",")
+# In production, set CORS_ORIGINS to your frontend URL
+raw_origins = os.getenv("CORS_ORIGINS", "*")
+origins = [o.strip() for o in raw_origins.split(",") if o.strip()]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_credentials=True,
+    allow_credentials=False, # Set to False to allow wildcard (*) if needed, we use JWT in headers
     allow_methods=["*"],
     allow_headers=["*"],
 )
