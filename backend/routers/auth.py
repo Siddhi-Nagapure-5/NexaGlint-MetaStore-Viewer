@@ -25,6 +25,8 @@ SECRET_KEY = os.getenv("JWT_SECRET", "nexaglint-super-secret-key-change-in-prod-
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_HOURS = 24
 USERS_FILE = os.path.join(os.path.dirname(__file__), "..", "users.json")
+# Ensure the directory for users.json exists
+os.makedirs(os.path.dirname(USERS_FILE), exist_ok=True)
 
 pwd_ctx = CryptContext(schemes=["sha256_crypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
