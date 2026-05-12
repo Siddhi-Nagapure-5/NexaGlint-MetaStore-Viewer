@@ -7,8 +7,11 @@ if current_dir not in sys.path:
     sys.path.append(current_dir)
 
 import logging
-from dotenv import load_dotenv
-load_dotenv()  # Load .env before anything else
+try:
+    from dotenv import load_dotenv
+    load_dotenv()  # Load .env if present (mostly for local dev)
+except ImportError:
+    logging.warning("python-dotenv not found, skipping .env loading (standard for production)")
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
