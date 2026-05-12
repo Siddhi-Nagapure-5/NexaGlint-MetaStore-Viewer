@@ -43,3 +43,9 @@ def health():
 # ─── Routers ──────────────────────────────────────────────────────────────────
 app.include_router(auth_router)
 app.include_router(tables_router)
+
+# ─── Main Entry Point ─────────────────────────────────────────────────────────
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.getenv("PORT", 10000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
