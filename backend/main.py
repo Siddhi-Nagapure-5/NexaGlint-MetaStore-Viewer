@@ -1,5 +1,10 @@
+import os
+import sys
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+# This is the line that was missing! It helps the app find the 'routers' folder.
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 app = FastAPI()
 
@@ -25,5 +30,6 @@ try:
     from routers.tables import router as tables_router
     app.include_router(auth_router)
     app.include_router(tables_router)
+    print("All routers loaded successfully!")
 except Exception as e:
     print(f"Router error: {e}")
