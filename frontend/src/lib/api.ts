@@ -70,7 +70,8 @@ async function api<T>(
   } catch (error) {
     if (error instanceof ApiError) throw error;
     console.error(`[Network Error] ${fullUrl}`, error);
-    throw new ApiError(500, "Network connection failed. Please check your VITE_API_URL setting.");
+    const msg = error instanceof Error ? error.message : String(error);
+    throw new ApiError(500, `Connection failed to ${fullUrl}. Error: ${msg}. Check VITE_API_URL.`);
   }
 }
 
