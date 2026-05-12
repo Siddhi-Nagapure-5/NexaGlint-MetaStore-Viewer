@@ -20,16 +20,16 @@ class AWSLoginRequest(BaseModel):
     aws_secret_access_key: str
     aws_region: Optional[str] = "us-east-1"
 
-class TokenResponse(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
-    user: "UserOut"
-
 class UserOut(BaseModel):
     id: str
     email: str
     name: str
     created_at: str
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: UserOut
 
 # ─── Table Schema ─────────────────────────────────────────────────────────────
 class ColumnSchema(BaseModel):
